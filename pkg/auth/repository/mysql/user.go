@@ -3,7 +3,8 @@ package mysql
 import (
 	"AuthService/pkg/models"
 	"database/sql"
-	"fmt"
+	"golang.org/x/crypto/bcrypt"
+	"strings"
 )
 
 type UserRepository struct {
@@ -26,16 +27,26 @@ func (r *UserRepository) Logout() error {
 	return nil
 }
 
-func (r *UserRepository) GetUser(email, password string) (*models.User, error) {
+func (r *UserRepository) Get(email, password string) (*models.User, error) {
 	user := new(models.User)
-	res, _ := r.db.Query(fmt.Sprintf("SELECT * FROM Users;"))
+	res := r.db.QueryRow(
+		`SELECT u.id, u.password, u.companyCode, GROUP_CONCAT(ur.rightsCode) AS rightsCodes
+		FROM users_rights_rights AS ur
+		LEFT JOIN Users AS u ON ur.usersId = u.id
+		WHERE u.email = ?`, email)
 
-	for res.Next() {
-		err := res.Scan(&user.Id, &user.CreatedAt, &user.ImageUrl, &user.Email, &user.Password, &user.HashedRt)
+	var userRights string
+	err := res.Scan(&user.Id, &user.Password, &user.UserCompany, &userRights)
+	user.UserRights = strings.Split(userRights, ",")
+	user.Email = email
 
-		if err != nil {
-			return nil, err
-		}
+	if err != nil {
+		return nil, err
 	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return nil, err
+	}
+
 	return user, nil
 }
