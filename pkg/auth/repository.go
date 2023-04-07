@@ -1,9 +1,16 @@
 package auth
 
-import "AuthService/pkg/models"
+import (
+	"AuthService/pkg/models"
+)
+
+type GetParams struct {
+	Email    string
+	Password string
+}
 
 type Repository interface {
-	Refresh(userId int, refreshToken string) (string, error)
-	Logout() error
-	Get(email, password string) (*models.User, error)
+	Refresh(userId int, refreshToken string) (*models.User, error)
+	Logout(int) error
+	Get(params GetParams) (*models.User, error)
 }

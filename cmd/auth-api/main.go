@@ -21,14 +21,14 @@ func main() {
 
 	router.GET("/cookie", func(c *gin.Context) {
 
-		cookie, err := c.Cookie("gin_cookie")
+		refreshToken, err := c.Cookie("refreshToken")
 
 		if err != nil {
-			cookie = "NotSet"
+			refreshToken = "NotSet"
 			c.SetCookie("gin_cookie", "test", 3600, "/", "localhost", false, true)
 		}
 
-		fmt.Printf("Cookie value: %s \n", cookie)
+		fmt.Printf("Cookie value: %s \n", refreshToken)
 	})
 
 	router.Run()
