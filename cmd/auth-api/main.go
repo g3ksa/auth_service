@@ -1,35 +1,27 @@
 package main
 
 import (
-	"AuthService/config"
+	"AuthService/pkg/server"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"log"
+	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
+	"os"
 )
 
 func init() {
-	if err := config.Init(); err != nil {
-		log.Fatalf(
-			"%s",
-			err.Error(),
-		)
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.WarnLevel)
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file found")
 	}
 }
 
 func main() {
-	router := gin.Default()
-
-	router.GET("/cookie", func(c *gin.Context) {
-
-		refreshToken, err := c.Cookie("refreshToken")
-
-		if err != nil {
-			refreshToken = "NotSet"
-			c.SetCookie("gin_cookie", "test", 3600, "/", "localhost", false, true)
-		}
-
-		fmt.Printf("Cookie value: %s \n", refreshToken)
-	})
-
-	router.Run()
+	app := server.NewApp()
+	port, _ := os.LookupEnv("port")
+	fmt.Println(port)
+	if err := app.Run(port); err != nil {
+		log.Fatalf("%s", err.Error())
+	}
 }

@@ -9,4 +9,5 @@ type Claims struct {
 	UserId      int      `json:"user_id"`
 	UserCompany string   `json:"user_company"`
 	UserRights  []string `json:"user_rights"`
+	UserRole    string   `json:"user_role"`
 }

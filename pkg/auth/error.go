@@ -2,6 +2,7 @@ package auth
 
 import "errors"
 
-var ErrInvalidAccessToken = errors.New("Некорректный токен авторизаци")
-var ErrUserDoesNotExist = errors.New("Такого польхователя не существует")
-var ErrUserAlreadyExists = errors.New("Пользователь с такими данными уже существует")
+var ErrInvalidAccessToken = errors.New("некорректный токен авторизаци")
+var ErrUserDoesNotExist = errors.New("такого польхователя не существует")
+var ErrUserAlreadyExists = errors.New("пользователь с такими данными уже существует")
+var ErrIncorrectPassword = errors.New("неверный пароль")

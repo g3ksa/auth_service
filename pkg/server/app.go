@@ -1,8 +1,14 @@
 package server
 
 import (
+	"AuthService/pkg/auth"
+	"AuthService/pkg/auth/delivery"
+	"AuthService/pkg/auth/repository/mysql"
+	"AuthService/pkg/auth/usecase"
 	"context"
+	"database/sql"
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
 	"os"
@@ -11,11 +17,29 @@ import (
 )
 
 type App struct {
-	httpServer *http.Server
+	httpServer  *http.Server
+	authUseCase auth.UseCase
 }
 
 func NewApp() *App {
+	db, err := sql.Open("mysql", "nodus:e5eJoiYah6e@tcp(95.183.10.174:3306)/marketing")
+	if err != nil {
+		log.Fatal(err)
+	}
+	userRepo := mysql.New(db)
 
+	accessSecret, _ := os.LookupEnv("accessSecret")
+	refreshSecret, _ := os.LookupEnv("refreshSecret")
+
+	authUseCase := usecase.New(
+		userRepo,
+		accessSecret,
+		refreshSecret,
+		time.Minute,
+	)
+	return &App{
+		authUseCase: authUseCase,
+	}
 }
 
 func (a *App) Run(port string) error {
@@ -24,6 +48,7 @@ func (a *App) Run(port string) error {
 	router.Use(gin.Recovery(), gin.Logger())
 
 	api := router.Group("/auth")
+	delivery.RegisterHTTPEndpoints(api, a.authUseCase)
 
 	a.httpServer = &http.Server{
 		Addr:           ":" + port,
