@@ -22,7 +22,7 @@ type App struct {
 }
 
 func NewApp() *App {
-	db, err := sql.Open("mysql", "nodus:e5eJoiYah6e@tcp(95.183.10.174:3306)/marketing")
+	db, err := sql.Open("mysql", "username:password@tcp(host:port)/db")
 	if err != nil {
 		log.Fatal(err)
 	}
